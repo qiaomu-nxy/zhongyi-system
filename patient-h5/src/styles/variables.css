@@ -1,0 +1,17 @@
+:root {
+  --color-primary: #5DB391;
+  --color-primary-light: #E8F5E9;
+  --color-primary-bg: #F0F7F4;
+  --color-symptom: #EF9A9A;
+  --color-symptom-light: #FFEBEE;
+  --color-bg: #FAFAFA;
+  --color-card: #FFFFFF;
+  --color-text: #333333;
+  --color-text-secondary: #999999;
+  --color-border: #EEEEEE;
+  --color-success: #81C784;
+  --color-error: #E57373;
+  --radius-card: 16px;
+  --radius-btn: 999px;
+  --shadow-card: 0 2px 8px rgba(0,0,0,0.06);
+}

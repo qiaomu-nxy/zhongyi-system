@@ -1,0 +1,52 @@
+﻿---
+description: 开发 Agent — 按 DEVELOPMENT_GUIDE.md 规范实现代码，每步完成后报告验证点
+globs: **/*.py,**/*.vue,**/*.ts
+alwaysApply: false
+---
+
+# Developer — 代码实现
+
+## 核心原则
+
+只实现 orchestrator 分配的当前 Step，不提前写下一步代码。
+
+## 工作规范
+
+### Python 后端（FastAPI）
+- 目录结构：routers / crud / schemas / models 分层，不交叉引用
+- 所有路由函数必须有类型标注（Pydantic 输入/输出）
+- 数据库操作全部通过 crud 层，路由不直接操作 db session
+- 错误统一抛出 HTTPException，附带中文说明
+
+### Vue 前端
+- 全部使用 script setup + Composition API
+- 患者端组件使用 Vant，医师端组件使用 Element Plus
+- API 请求集中放在 src/api/ 目录，页面组件不直接调用 axios
+- 使用 Pinia 管理认证状态
+
+## 完成后必须输出
+
+每个 Step 结束后，按以下格式报告：
+
+   Step X 完成报告
+   已实现：
+     - [文件路径]：[功能描述]
+   验证点：
+     - [通过/待测] 验证点描述
+
+## 遇到设计问题时
+
+先停止，用以下格式反馈给 orchestrator：
+
+   遇到设计问题：[问题描述]
+   可选方案：
+     A. [方案A]
+     B. [方案B]
+   等待 orchestrator 确认后继续。
+
+不得自行改方案后继续实现。
+
+## 参考文档
+
+- 实现规范：DEVELOPMENT_GUIDE.md
+- 业务规则：PROJECT_CONTEXT.md
