@@ -4,7 +4,7 @@ import { usePatientStore } from '../stores/patient'
 const routes = [
   { path: '/', redirect: '/records' },
   { path: '/login', component: () => import('../views/Login.vue') },
-  { path: '/info', component: () => import('../views/PatientInfo.vue'), meta: { requiresAuth: true } },
+  { path: '/info', component: () => import('../views/PatientInfo.vue') },
   { path: '/appointment', component: () => import('../views/Appointment.vue'), meta: { requiresAuth: true } },
   { path: '/symptoms', component: () => import('../views/SymptomForm.vue'), meta: { requiresAuth: true } },
   { path: '/records', component: () => import('../views/MyRecords.vue'), meta: { requiresAuth: true } },
