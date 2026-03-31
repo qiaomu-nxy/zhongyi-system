@@ -37,6 +37,15 @@ def get_available_slots(db: Session, date: datetime.date) -> list[dict]:
 
 
 def create_appointment(db: Session, schema: AppointmentCreate) -> Appointment:
+    # 同一患者同一天只能有一个待就诊预约
+    existing = db.query(Appointment).filter(
+        Appointment.patient_id == schema.patient_id,
+        Appointment.appointment_date == schema.appointment_date,
+        Appointment.status == "待就诊",
+    ).first()
+    if existing:
+        raise BusinessError(f"您已预约当日 {existing.time_slot} 时段，请勿重复预约")
+
     slots = get_available_slots(db, schema.appointment_date)
     info = next((s for s in slots if s["time_slot"] == schema.time_slot), None)
     if not info or not info["available"]:
@@ -76,8 +85,10 @@ def cancel_by_patient(db: Session, apt_id: int, reason: str | None = None) -> Ap
         raise NotFoundError("预约记录不存在")
     if apt.status != "待就诊":
         raise BusinessError(f"当前状态「{apt.status}」，无法取消")
-    if apt.appointment_date <= datetime.date.today():
-        raise BusinessError("当天及过去的预约无法由患者取消")
+    # 预约时间前2小时内不可取消
+    apt_dt = datetime.datetime.combine(apt.appointment_date, datetime.time(*map(int, apt.time_slot.split(":"))))
+    if datetime.datetime.now() >= apt_dt - datetime.timedelta(hours=2):
+        raise BusinessError("距就诊时间不足2小时，无法取消")
     apt.status = "已取消"
     apt.cancel_reason = reason
     db.commit()
