@@ -23,20 +23,21 @@ const editForm = ref<Partial<Patient>>({})
 async function loadAll() {
   loading.value = true
   try {
-    const [pRes, vRes, aRes, lRes] = await Promise.all([
-      getPatient(patientId),
-      getVisits({ patient_id: patientId }),
-      getPatientAppointments(patientId),
-      getPatientLabResults(patientId),
-    ])
+    const pRes = await getPatient(patientId)
     patient.value = pRes.data
-    visits.value = vRes.data
-    appointments.value = aRes.data
-    labResults.value = lRes.data
     editForm.value = { ...pRes.data }
-  } finally {
+  } catch (e: any) {
+    ElMessage.error('加载患者信息失败：' + (e?.response?.data?.detail || e?.message || '未知错误'))
     loading.value = false
+    return
   }
+
+  // 其余数据独立加载，单个失败不影响主信息展示
+  Promise.all([
+    getVisits({ patient_id: patientId }).then(r => { visits.value = r.data }).catch(() => {}),
+    getPatientAppointments(patientId).then(r => { appointments.value = r.data }).catch(() => {}),
+    getPatientLabResults(patientId).then(r => { labResults.value = r.data }).catch(() => {}),
+  ]).finally(() => { loading.value = false })
 }
 
 function getAge(birthDate: string | null): string {
