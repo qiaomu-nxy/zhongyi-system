@@ -48,13 +48,15 @@
                 <van-tag :type="aptTagType(a.status)" size="small">{{ a.status }}</van-tag>
               </div>
               <van-button
-                v-if="a.status === '待就诊' && canCancel(a.appointment_date)"
+                v-if="a.status === '待就诊' && canCancel(a.appointment_date, a.time_slot)"
                 size="small"
                 plain
                 type="danger"
                 @click="handleCancel(a.id)"
               >取消预约</van-button>
-              <p v-if="a.status === '待就诊' && !canCancel(a.appointment_date)" class="today-tip">今日就诊，请到店签到</p>
+              <p v-if="a.status === '待就诊' && !canCancel(a.appointment_date, a.time_slot)" class="today-tip">
+                距就诊不足2小时，请按时到店
+              </p>
             </div>
           </div>
         </van-pull-refresh>
@@ -98,9 +100,10 @@ function aptTagType(status: string) {
   return { 待就诊: 'primary', 已完成: 'success', 已取消: 'default', 爽约: 'danger' }[status] || 'default'
 }
 
-function canCancel(date: string) {
-  const today = new Date().toISOString().slice(0, 10)
-  return date > today
+function canCancel(date: string, timeSlot: string) {
+  const aptTime = new Date(`${date}T${timeSlot}:00`)
+  const twoHoursBefore = new Date(aptTime.getTime() - 2 * 60 * 60 * 1000)
+  return new Date() < twoHoursBefore
 }
 
 async function loadVisits() {
