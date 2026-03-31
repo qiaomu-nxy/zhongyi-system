@@ -21,13 +21,16 @@ const newPatientForm = ref({ name: '', phone: '', gender: '男' })
 const showNewPatientForm = ref(false)
 const createLoading = ref(false)
 
-async function loadData() {
+async function loadData(showFeedback = false) {
   loading.value = true
   try {
     const res = await getTodayVisits()
     stats.value = res.data
     waitingVisits.value = res.data.visits.filter(v => v.status === '待接诊' || v.status === '待签到')
     completedVisits.value = res.data.visits.filter(v => v.status === '已完成')
+    if (showFeedback) ElMessage.success('数据已刷新')
+  } catch {
+    ElMessage.error('刷新失败，请检查网络')
   } finally {
     loading.value = false
   }
@@ -116,7 +119,7 @@ onMounted(loadData)
         <p class="page-subtitle">{{ new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' }) }}</p>
       </div>
       <div class="header-actions">
-        <el-button @click="loadData" :loading="loading" :icon="'Refresh'" title="手动刷新最新就诊状态">刷新</el-button>
+        <el-button @click="loadData(true)" :loading="loading" :icon="'Refresh'" title="手动刷新最新就诊状态">刷新</el-button>
         <el-button type="primary" :icon="'Plus'" @click="createDialogVisible = true">手动创建就诊</el-button>
       </div>
     </div>
