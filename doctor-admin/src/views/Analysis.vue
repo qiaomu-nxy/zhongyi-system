@@ -60,13 +60,14 @@ function renderLineChart(data: any) {
   }
 
   const colors = ['#5DB391', '#EF9A9A', '#64B5F6', '#FFB74D', '#CE93D8', '#80CBC4']
+  lineChart.clear()
   lineChart.setOption({
-    title: { text: '症状严重程度变化', left: 16, textStyle: { fontSize: 14, fontWeight: 600 } },
+    title: { text: '症状严重程度变化', left: 'center', top: 8, textStyle: { fontSize: 14, fontWeight: 600 } },
     tooltip: { trigger: 'axis' },
     legend: { bottom: 0, type: 'scroll' },
-    grid: { top: 50, bottom: 50, left: 40, right: 20 },
+    grid: { top: 48, bottom: 50, left: 50, right: 20 },
     xAxis: { type: 'category', data: data.x_labels ?? [], axisLabel: { fontSize: 11 } },
-    yAxis: { type: 'value', min: 0, max: 10, name: '严重程度' },
+    yAxis: { type: 'value', min: 0, max: 10 },
     color: colors,
     series: (data.series ?? []).map((s: any) => ({
       name: s.name,
@@ -88,8 +89,9 @@ function renderRadarChart(data: any) {
     return
   }
 
+  radarChart.clear()
   radarChart.setOption({
-    title: { text: '症状雷达图（首诊 vs 当前）', left: 16, textStyle: { fontSize: 14, fontWeight: 600 } },
+    title: { text: '症状雷达图（首诊 vs 当前）', left: 'center', top: 8, textStyle: { fontSize: 14, fontWeight: 600 } },
     tooltip: {},
     legend: { bottom: 0, data: ['首诊', '当前'] },
     radar: {
@@ -115,8 +117,9 @@ function renderLabChart(data: any) {
     return
   }
 
+  labChart.clear()
   labChart.setOption({
-    title: { text: '检验指标趋势', left: 16, textStyle: { fontSize: 14, fontWeight: 600 } },
+    title: { text: '检验指标趋势', left: 'center', top: 8, textStyle: { fontSize: 14, fontWeight: 600 } },
     tooltip: { trigger: 'axis' },
     legend: { bottom: 0, type: 'scroll' },
     grid: { top: 50, bottom: 50, left: 50, right: 20 },
