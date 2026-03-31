@@ -14,28 +14,53 @@
             </van-radio-group>
           </template>
         </van-field>
-        <van-field
-          v-model="form.birth_date"
-          name="birth_date"
-          label="出生日期"
-          placeholder="YYYY-MM-DD"
-          @click="showDatePicker = true"
-          readonly
-        />
+        <van-field name="birth_date" label="出生日期">
+          <template #input>
+            <input
+              type="date"
+              v-model="form.birth_date"
+              class="date-input"
+              min="1930-01-01"
+              :max="today"
+            />
+          </template>
+        </van-field>
       </van-cell-group>
 
       <van-cell-group inset title="健康史">
         <van-field name="medical_history" label="既往病史">
           <template #input>
-            <div class="chip-group">
-              <van-tag
-                v-for="item in medicalOptions"
-                :key="item"
-                :type="form.medical_history.includes(item) ? 'success' : 'default'"
-                size="medium"
-                @click="toggleMedical(item)"
-                class="chip"
-              >{{ item }}</van-tag>
+            <div class="medical-wrap">
+              <div class="chip-group">
+                <van-tag
+                  v-for="item in medicalOptions"
+                  :key="item"
+                  :type="form.medical_history.includes(item) ? 'success' : 'default'"
+                  size="medium"
+                  @click="toggleMedical(item)"
+                  class="chip"
+                >{{ item }}</van-tag>
+              </div>
+              <div class="custom-input-row">
+                <input
+                  v-model="customMedical"
+                  class="custom-input"
+                  placeholder="其他病史，输入后按回车添加"
+                  @keyup.enter="addCustomMedical"
+                />
+                <span class="add-btn" @click="addCustomMedical">添加</span>
+              </div>
+              <div v-if="customTags.length" class="chip-group" style="margin-top:6px">
+                <van-tag
+                  v-for="tag in customTags"
+                  :key="tag"
+                  type="success"
+                  size="medium"
+                  closeable
+                  @close="removeCustom(tag)"
+                  class="chip"
+                >{{ tag }}</van-tag>
+              </div>
             </div>
           </template>
         </van-field>
@@ -57,16 +82,6 @@
       </div>
     </van-form>
 
-    <van-popup v-model:show="showDatePicker" position="bottom">
-      <van-date-picker
-        v-model="pickerDate"
-        title="选择出生日期"
-        :min-date="new Date(1930, 0, 1)"
-        :max-date="new Date()"
-        @confirm="onDateConfirm"
-        @cancel="showDatePicker = false"
-      />
-    </van-popup>
   </div>
 </template>
 
@@ -82,10 +97,10 @@ const route = useRoute()
 const store = usePatientStore()
 
 const loading = ref(false)
-const showDatePicker = ref(false)
-const pickerDate = ref(['2000', '01', '01'])
+const today = new Date().toISOString().split('T')[0]
 
-const medicalOptions = ['糖尿病', '高血压', '心脏病', '肝病', '肾病', '无']
+const medicalOptions = ['糖尿病', '高血压', '心脏病', '冠心病', '脑梗', '高血脂', '痛风', '肝病', '肾病', '甲状腺疾病', '肿瘤', '骨质疏松', '无']
+const customMedical = ref('')
 
 const form = ref({
   name: (route.query.name as string) || '',
@@ -95,6 +110,28 @@ const form = ref({
   medical_history: [] as string[],
   allergy_history: '',
 })
+
+// 用户手动输入的自定义标签（不在预设选项里）
+const customTags = ref<string[]>([])
+
+function addCustomMedical() {
+  const val = customMedical.value.trim()
+  if (!val) return
+  if (medicalOptions.includes(val) || customTags.value.includes(val) || form.value.medical_history.includes(val)) {
+    customMedical.value = ''
+    return
+  }
+  // 选了"无"时清除
+  form.value.medical_history = form.value.medical_history.filter(i => i !== '无')
+  customTags.value.push(val)
+  form.value.medical_history.push(val)
+  customMedical.value = ''
+}
+
+function removeCustom(tag: string) {
+  customTags.value = customTags.value.filter(t => t !== tag)
+  form.value.medical_history = form.value.medical_history.filter(t => t !== tag)
+}
 
 function toggleMedical(item: string) {
   const idx = form.value.medical_history.indexOf(item)
@@ -107,11 +144,6 @@ function toggleMedical(item: string) {
       form.value.medical_history.push(item)
     }
   }
-}
-
-function onDateConfirm({ selectedValues }: any) {
-  form.value.birth_date = selectedValues.join('-')
-  showDatePicker.value = false
 }
 
 async function handleSubmit() {
@@ -136,10 +168,42 @@ async function handleSubmit() {
 </script>
 
 <style scoped>
+.date-input {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: var(--color-text);
+  background: transparent;
+  width: 100%;
+}
 .page { background: var(--color-bg); min-height: 100vh; }
 .form-body { padding-top: 12px; }
+.medical-wrap { width: 100%; }
 .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip { cursor: pointer; }
+.custom-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.custom-input {
+  flex: 1;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 13px;
+  outline: none;
+  color: var(--color-text);
+}
+.custom-input:focus { border-color: var(--color-primary); }
+.add-btn {
+  color: var(--color-primary);
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 4px 2px;
+}
 :deep(.van-tag--success) { background: var(--color-primary); border-color: var(--color-primary); }
 .submit-area { padding: 24px 16px; }
 :deep(.van-button--primary) { background: var(--color-primary); border-color: var(--color-primary); height: 48px; }
