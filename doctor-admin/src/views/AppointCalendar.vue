@@ -105,19 +105,31 @@ const schedLoading = ref(false)
 const weekdayNames = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
 const slotOptions = [{ value: 30, label: '30分钟' }, { value: 45, label: '45分钟' }, { value: 60, label: '60分钟' }]
 
-const defaultSchedule: Partial<Schedule> = {
+const defaultSchedule = () => ({
   is_working: true, morning_start: '08:00', morning_end: '12:00',
   afternoon_start: '14:00', afternoon_end: '17:30', slot_duration: 30
-}
+})
 
-function getScheduleForDay(weekday: number): Schedule {
-  return schedules.value.find(s => s.weekday === weekday) ?? { ...defaultSchedule, weekday, id: 0 } as Schedule
+// 7天响应式排班数据，索引0=周一
+const scheduleRows = ref<Schedule[]>(
+  Array.from({ length: 7 }, (_, i) => ({ ...defaultSchedule(), weekday: i, id: 0 } as Schedule))
+)
+
+function syncScheduleRows() {
+  for (let i = 0; i < 7; i++) {
+    const found = schedules.value.find(s => s.weekday === i)
+    if (found) {
+      Object.assign(scheduleRows.value[i], found)
+    } else {
+      Object.assign(scheduleRows.value[i], { ...defaultSchedule(), weekday: i, id: 0 })
+    }
+  }
 }
 
 async function saveSchedule(weekday: number) {
-  const s = getScheduleForDay(weekday)
+  const s = scheduleRows.value[weekday]
   await updateSchedule({ ...s, weekday })
-  ElMessage.success(`周${weekdayNames[weekday]}排班已保存`)
+  ElMessage.success(`${weekdayNames[weekday]}排班已保存`)
   await loadSchedules()
 }
 
@@ -155,6 +167,7 @@ async function loadSchedules() {
     const [sRes, oRes] = await Promise.all([getSchedules(), getScheduleOverrides()])
     schedules.value = sRes.data
     overrides.value = oRes.data
+    syncScheduleRows()
   } finally {
     schedLoading.value = false
   }
@@ -268,23 +281,23 @@ onMounted(() => {
             <div v-for="(name, i) in weekdayNames" :key="i" class="schedule-row">
               <div class="schedule-day">{{ name }}</div>
               <div class="schedule-content">
-                <el-switch v-model="getScheduleForDay(i).is_working" active-text="出诊" inactive-text="休息" />
-                <template v-if="getScheduleForDay(i).is_working">
+                <el-switch v-model="scheduleRows[i].is_working" active-text="出诊" inactive-text="休息" />
+                <template v-if="scheduleRows[i].is_working">
                   <div class="time-range">
                     <span class="time-label">上午</span>
-                    <el-time-select v-model="getScheduleForDay(i).morning_start" start="06:00" end="12:00" step="00:30" placeholder="开始" style="width:110px" />
+                    <el-time-select v-model="scheduleRows[i].morning_start" start="06:00" end="12:00" step="00:30" placeholder="开始" style="width:110px" />
                     <span>—</span>
-                    <el-time-select v-model="getScheduleForDay(i).morning_end" start="06:00" end="13:00" step="00:30" placeholder="结束" style="width:110px" />
+                    <el-time-select v-model="scheduleRows[i].morning_end" start="06:00" end="13:00" step="00:30" placeholder="结束" style="width:110px" />
                   </div>
                   <div class="time-range">
                     <span class="time-label">下午</span>
-                    <el-time-select v-model="getScheduleForDay(i).afternoon_start" start="12:00" end="18:00" step="00:30" placeholder="开始" style="width:110px" />
+                    <el-time-select v-model="scheduleRows[i].afternoon_start" start="12:00" end="18:00" step="00:30" placeholder="开始" style="width:110px" />
                     <span>—</span>
-                    <el-time-select v-model="getScheduleForDay(i).afternoon_end" start="12:00" end="20:00" step="00:30" placeholder="结束" style="width:110px" />
+                    <el-time-select v-model="scheduleRows[i].afternoon_end" start="12:00" end="20:00" step="00:30" placeholder="结束" style="width:110px" />
                   </div>
                   <div class="time-range">
                     <span class="time-label">时间间隔</span>
-                    <el-select v-model="getScheduleForDay(i).slot_duration" style="width:100px">
+                    <el-select v-model="scheduleRows[i].slot_duration" style="width:100px">
                       <el-option v-for="o in slotOptions" :key="o.value" :label="o.label" :value="o.value" />
                     </el-select>
                   </div>
