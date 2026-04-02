@@ -7,7 +7,7 @@ V1 目标是先快速验证业务流程，采用单诊所单医师模式：
 - 医师端：Web 响应式后台
 - 后端：FastAPI
 - 数据库：SQLite
-- 部署：Render 免费云平台
+- 部署：Railway（后端 + 前端验证环境）
 
 ## V1 核心能力
 
@@ -107,10 +107,11 @@ zhongyi/
 
 ### V1
 
-- 部署到 Render 免费云平台
-- 后端提供 API
-- 患者端和医师端可分别构建后部署，或由 FastAPI 统一托管静态文件
+- 部署到 Railway
+- 后端、患者端、医师端分别部署为 3 个服务
+- 患者端与医师端生产环境已通过 `.env.production` 指向 Railway 后端 API
 - SQLite 数据库存储为单文件，便于备份和迁移
+- 验证环境可用，但中国大陆访问速度和稳定性不如国内云服务器
 
 ### V2
 
@@ -123,7 +124,7 @@ zhongyi/
 
 ### V1
 
-- 单诊所单医师 + H5 患者端 + Web 医师端 + FastAPI + SQLite
+- 单诊所单医师 + H5 患者端 + Web 医师端 + FastAPI + SQLite + Railway
 - 目标：快速验证诊所业务流程
 
 ### V2
@@ -143,3 +144,9 @@ zhongyi/
 - `DEVELOPMENT_GUIDE.md`：开发步骤、接口设计、前后端实现顺序
 
 当前 README 仅做项目总览与规则摘要，详细内容以上两份文档为准。
+
+## 当前线上地址
+
+- 后端：`https://joyful-respect-production-afbd.up.railway.app`
+- 患者端：`https://zhongyi-system-production.up.railway.app`
+- 医师端：`https://fearless-adaptation-production-3962.up.railway.app`
