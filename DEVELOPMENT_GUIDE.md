@@ -108,7 +108,8 @@ backend/
 ├── .env                     # 环境变量（不提交到 git）
 ├── .env.example             # 环境变量示例（提交到 git）
 ├── requirements.txt
-└── Procfile                 # Render 部署配置
+├── Procfile                 # 历史 Render 配置（可保留）
+└── Dockerfile               # Railway 容器部署配置
 ```
 
 `.env` 需包含的变量：
@@ -709,26 +710,27 @@ doctor-admin/src/
 
 ## 阶段五：部署上线
 
-### Step 5.1 — 后端部署到 Render
+### Step 5.1 — 后端部署到 Railway
 
-- 添加 `Procfile`：`web: uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-- 添加 `render.yaml`：声明服务类型、构建命令、环境变量
+- 添加 `backend/Dockerfile`，以容器方式部署 FastAPI
 - `requirements.txt` 确保所有依赖版本锁定
-- 推送到 GitHub → Render 关联仓库 → 自动构建部署
-- Render 控制台配置环境变量：`SECRET_KEY`、`CORS_ORIGINS`
-- 开启 Persistent Disk 挂载路径为 `/data`，数据库路径改为 `/data/zhongyi.db`
+- 推送到 GitHub → Railway 关联仓库 → 自动构建部署
+- Railway 服务配置：
+  - Root Directory: `backend`
+  - 环境变量：`SECRET_KEY`、`CORS_ORIGINS`
+  - 通过 `Networking` 生成公网域名
 
-### Step 5.2 — 前端部署
+### Step 5.2 — 前端部署到 Railway
 
 - 患者端 + 医师端分别在 `.env.production` 配置后端 API 地址
-- `npm run build` 生成 `dist/` 目录
-- 推荐：让 FastAPI 直接 serve 前端产物（单服务部署，最简单，无需额外配置）
-
-  ```python
-  # main.py 末尾添加
-  app.mount("/", StaticFiles(directory="patient-h5/dist", html=True), name="patient")
-  app.mount("/admin", StaticFiles(directory="doctor-admin/dist", html=True), name="admin")
-  ```
+- 两个前端分别建立独立 Railway 服务：
+  - 患者端 Root Directory: `patient-h5`
+  - 医师端 Root Directory: `doctor-admin`
+- 前端服务统一配置：
+  - Build Command: `npm install && npm run build`
+  - Start Command: `npx serve -s dist -l $PORT`
+- 每个前端服务在 `Networking` 生成独立公网域名
+- 后端 `CORS_ORIGINS` 最终收口为两个前端正式域名
 
 ### Step 5.3 — 生成诊所二维码
 
@@ -741,7 +743,7 @@ doctor-admin/src/
 包含：
 - 项目简介和功能截图
 - 本地开发启动步骤（三个服务：backend / patient-h5 / doctor-admin）
-- 部署到 Render 的步骤
+- 部署到 Railway 的步骤
 - 环境变量说明（对照 `.env.example`）
 - V1→V2 升级路径说明
 
@@ -784,8 +786,8 @@ doctor-admin/src/
   4.4 性能优化
 
 阶段五 部署上线（约 5% 工作量）
-  5.1 后端部署 Render + 持久化磁盘
-  5.2 前端构建 + 静态文件 serve
+  5.1 后端部署 Railway
+  5.2 前端部署 Railway
   5.3 生成诊所二维码
   5.4 编写 README
 ```
