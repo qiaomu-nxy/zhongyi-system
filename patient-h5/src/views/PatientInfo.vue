@@ -176,7 +176,7 @@ async function handleSubmit() {
   background: transparent;
   width: 100%;
 }
-.page { background: var(--color-bg); min-height: 100vh; }
+.page { width: 100%; overflow-x: hidden; background: var(--color-bg); min-height: 100vh; }
 .form-body { padding-top: 12px; }
 .medical-wrap { width: 100%; }
 .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
