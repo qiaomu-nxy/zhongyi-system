@@ -120,14 +120,17 @@ onMounted(() => selectDate(dateList[0].value))
 </script>
 
 <style scoped>
-.page { background: var(--color-bg); min-height: 100vh; }
+.page { width: 100%; overflow-x: hidden; background: var(--color-bg); min-height: 100vh; }
 .date-bar {
   display: flex;
   overflow-x: auto;
+  overflow-y: hidden;
   gap: 8px;
   padding: 12px 16px;
   background: var(--color-card);
   border-bottom: 1px solid var(--color-border);
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 .date-item {
   flex: 0 0 52px;
@@ -161,7 +164,11 @@ onMounted(() => selectDate(dateList[0].value))
 .slot-item.booked { background: #f5f5f5; color: #ccc; cursor: not-allowed; }
 .confirm-card {
   position: fixed;
-  bottom: 0; left: 0; right: 0;
+  bottom: 0;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: min(100%, 480px);
   background: var(--color-card);
   padding: 16px;
   box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
