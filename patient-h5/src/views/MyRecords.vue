@@ -147,7 +147,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.page { background: var(--color-bg); min-height: 100vh; padding-bottom: 60px; }
+.page { width: 100%; overflow-x: hidden; background: var(--color-bg); min-height: 100vh; padding-bottom: 60px; }
 .patient-header {
   display: flex; align-items: center; gap: 12px;
   background: var(--color-primary); color: #fff;
