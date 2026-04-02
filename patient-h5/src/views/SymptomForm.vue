@@ -194,7 +194,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.page { background: var(--color-bg); min-height: 100vh; padding-bottom: 80px; }
+.page { width: 100%; overflow-x: hidden; background: var(--color-bg); min-height: 100vh; padding-bottom: 80px; }
 .loading { display: flex; justify-content: center; padding: 60px; }
 .section-card { background: var(--color-card); margin: 12px; border-radius: var(--radius-card); padding: 16px; box-shadow: var(--shadow-card); }
 .section-title { font-size: 14px; font-weight: 600; color: var(--color-primary); margin-bottom: 12px; }
@@ -209,6 +209,16 @@ onMounted(async () => {
 .score-label { font-size: 13px; color: var(--color-text-secondary); white-space: nowrap; }
 .slider { flex: 1; }
 .score-val { font-size: 15px; font-weight: 700; color: var(--color-symptom); min-width: 20px; }
-.submit-area { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 16px; background: var(--color-card); box-shadow: 0 -2px 8px rgba(0,0,0,0.07); }
+.submit-area {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: min(100%, 480px);
+  padding: 12px 16px;
+  background: var(--color-card);
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.07);
+}
 :deep(.van-button--primary) { background: var(--color-primary); border-color: var(--color-primary); height: 46px; }
 </style>
